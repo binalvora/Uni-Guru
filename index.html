@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UIIC × Uni-Guru · RM Leaderboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f4f9; color: #1a1a2e; padding: 28px 16px 48px; }
+    .header { max-width: 960px; margin: 0 auto 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .header-left h1 { font-size: 22px; font-weight: 800; color: #003399; }
+    .header-left p { font-size: 13px; color: #6b7280; margin-top: 3px; }
+    .badge { background: #003399; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .table-wrap { background: #fff; border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); overflow: hidden; margin-bottom: 28px; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; gap: 8px; }
+    .table-header h3 { font-size: 15px; font-weight: 700; color: #111; }
+    .table-header span { font-size: 11px; color: #9ca3af; }
+    .filter-tabs { display: flex; gap: 6px; padding: 10px 20px; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; }
+    .tab { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid #e5e7eb; background: transparent; color: #6b7280; transition: all 0.15s; }
+    .tab.active, .tab:hover { background: #003399; color: #fff; border-color: #003399; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th { background: #f9fafb; padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: #9ca3af; white-space: nowrap; }
+    thead th.right { text-align: right; }
+    tbody tr:hover { background: #f8faff; }
+    tbody td { padding: 11px 14px; border-top: 1px solid #f3f4f6; color: #374151; }
+    tbody td.right { text-align: right; }
+    .ro-name { font-weight: 700; color: #111; }
+    .rm-name { font-size: 12px; color: #6b7280; }
+    .bar-cell { width: 140px; }
+    .bar-wrap { display: flex; align-items: center; gap: 6px; }
+    .bar-track { flex: 1; height: 6px; background: #f3f4f6; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+    .bar-pct { font-size: 11px; font-weight: 700; color: #6b7280; min-width: 30px; text-align: right; }
+    .rank { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; margin-right: 4px; }
+    .rank.gold { background: #fef3c7; color: #92400e; }
+    .rank.silver { background: #f3f4f6; color: #374151; }
+    .rank.bronze { background: #fef3c7; color: #b45309; }
+    .rank.plain { background: #f3f4f6; color: #6b7280; }
+    .attention { background: #fff7ed; border: 1.5px solid #fed7aa; border-radius: 14px; padding: 16px 20px; margin-bottom: 28px; }
+    .attention h3 { font-size: 13px; font-weight: 700; color: #c2410c; margin-bottom: 10px; }
+    .attention-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; }
+    .attn-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 8px; padding: 8px 12px; border: 1px solid #fed7aa; }
+    .attn-ro { font-size: 12px; font-weight: 700; color: #111; }
+    .attn-rm { font-size: 11px; color: #9ca3af; }
+    .attn-pct { font-size: 13px; font-weight: 800; color: #ef4444; }
+    .footer { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 10px; }
+    @media (max-width: 600px) { .bar-cell { display: none; } }
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>🏢 UIIC × Uni-Guru</h1>
+    <p>RM-wise Leaderboard &nbsp;·&nbsp; Data as of <strong>10 March 2025</strong></p>
+  </div>
+  <span class="badge">📋 Internal</span>
+</div>
+<div class="wrap">
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>📍 RM-wise Performance — All 30 Regions</h3>
+      <span>Sorted by Microsite Active Users (default)</span>
+    </div>
+    <div class="filter-tabs">
+      <button class="tab active" onclick="sortTable('ms_active', this)">🌐 MS Active ↓</button>
+      <button class="tab" onclick="sortTable('tp_active', this)">🎓 TP Active ↓</button>
+      <button class="tab" onclick="sortTable('ms_rate', this)">📈 MS Rate ↓</button>
+      <button class="tab" onclick="sortTable('tp_rate', this)">📈 TP Rate ↓</button>
+    </div>
+    <table id="rm-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Region / RM</th>
+          <th class="right">MS Total</th>
+          <th class="right">MS Active</th>
+          <th class="bar-cell">MS Rate</th>
+          <th class="right">TP Total</th>
+          <th class="right">TP Active</th>
+          <th class="bar-cell">TP Rate</th>
+        </tr>
+      </thead>
+      <tbody id="rm-body"></tbody>
+    </table>
+  </div>
+  <div class="attention">
+    <h3>⚠️ Needs Attention — Lowest Microsite Activation (&lt;22%)</h3>
+    <div class="attention-grid">
+      <div class="attn-row"><div><div class="attn-ro">RO Bhubaneswar</div><div class="attn-rm">Deepak Gupta</div></div><div class="attn-pct">18.5%</div></div>
+      <div class="attn-row"><div><div class="attn-ro">RO Hyderabad</div><div class="attn-rm">G Thirupalu</div></div><div class="attn-pct">19.3%</div></div>
+      <div class="attn-row"><div><div class="attn-ro">RO Jodhpur</div><div class="attn-rm">Ved Sagar</div></div><div class="attn-pct">20.5%</div></div>
+      <div class="attn-row"><div><div class="attn-ro">RO 2 Mumbai</div><div class="attn-rm">Vikram Tanwar</div></div><div class="attn-pct">21.5%</div></div>
+      <div class="attn-row"><div><div class="attn-ro">RO Kolkata</div><div class="attn-rm">Anirban Gayun</div></div><div class="attn-pct">21.9%</div></div>
+    </div>
+  </div>
+  <p class="footer">Generated by Uni-Guru · For internal circulation only</p>
+</div>
+<script>
+const rmData = [
+  { ro:"RO Chennai",       rm:"Srinivasan V",       ms_t:295,  ms_a:93,  tp_t:773,   tp_a:142 },
+  { ro:"RO 1 Mumbai",      rm:"Anita Krishnan",     ms_t:68,   ms_a:39,  tp_t:161,   tp_a:29  },
+  { ro:"RO Kolkata",       rm:"Anirban Gayun",      ms_t:378,  ms_a:83,  tp_t:915,   tp_a:93  },
+  { ro:"RO 1 New Delhi",   rm:"Rajani Ranjan",      ms_t:144,  ms_a:42,  tp_t:241,   tp_a:48  },
+  { ro:"RO Hyderabad",     rm:"G Thirupalu",        ms_t:322,  ms_a:62,  tp_t:532,   tp_a:86  },
+  { ro:"RO Ahmedabad",     rm:"Ajay Rawat",         ms_t:183,  ms_a:61,  tp_t:491,   tp_a:64  },
+  { ro:"RO Bangalore",     rm:"Srimathi T S",       ms_t:436,  ms_a:168, tp_t:1806,  tp_a:264 },
+  { ro:"RO Lucknow",       rm:"Santosh Kumar",      ms_t:274,  ms_a:134, tp_t:994,   tp_a:312 },
+  { ro:"RO Madurai",       rm:"E Balamurugan",      ms_t:362,  ms_a:105, tp_t:1635,  tp_a:318 },
+  { ro:"RO Kochi",         rm:"Jijimon Alex",       ms_t:480,  ms_a:141, tp_t:1691,  tp_a:224 },
+  { ro:"RO Chandigarh",    rm:"Ashok Negi",         ms_t:376,  ms_a:88,  tp_t:1118,  tp_a:204 },
+  { ro:"RO 2 Mumbai",      rm:"Vikram Tanwar",      ms_t:163,  ms_a:35,  tp_t:435,   tp_a:87  },
+  { ro:"RO Guwahati",      rm:"Swapan Maji",        ms_t:213,  ms_a:67,  tp_t:572,   tp_a:77  },
+  { ro:"RO Jaipur",        rm:"Saurabh Sharma",     ms_t:441,  ms_a:150, tp_t:1450,  tp_a:373 },
+  { ro:"RO Visakhapatnam", rm:"Phani Kumar",        ms_t:215,  ms_a:56,  tp_t:419,   tp_a:102 },
+  { ro:"RO Pune",          rm:"Motilal Panda",      ms_t:441,  ms_a:122, tp_t:765,   tp_a:139 },
+  { ro:"RO Coimbatore",    rm:"S Rajalakshmi",      ms_t:421,  ms_a:174, tp_t:1290,  tp_a:308 },
+  { ro:"RO Vadodara",      rm:"S S Koli",           ms_t:121,  ms_a:44,  tp_t:306,   tp_a:56  },
+  { ro:"RO Bhopal",        rm:"Vijay Ganapat",      ms_t:230,  ms_a:69,  tp_t:745,   tp_a:143 },
+  { ro:"RO Ludhiana",      rm:"Ajay Singh",         ms_t:328,  ms_a:73,  tp_t:758,   tp_a:98  },
+  { ro:"RO Patna",         rm:"Anjan Sinha",        ms_t:148,  ms_a:42,  tp_t:409,   tp_a:79  },
+  { ro:"RO 2 New Delhi",   rm:"Sanjeev Aggarwal",   ms_t:136,  ms_a:57,  tp_t:449,   tp_a:95  },
+  { ro:"RO Nagpur",        rm:"Vikram U Wandile",   ms_t:268,  ms_a:95,  tp_t:471,   tp_a:123 },
+  { ro:"RO Hubli",         rm:"Kalasree Krishna",   ms_t:268,  ms_a:72,  tp_t:880,   tp_a:128 },
+  { ro:"RO Dehradun",      rm:"B M Bharty",         ms_t:173,  ms_a:42,  tp_t:403,   tp_a:57  },
+  { ro:"RO Bhubaneswar",   rm:"Deepak Gupta",       ms_t:108,  ms_a:20,  tp_t:214,   tp_a:34  },
+  { ro:"RO Raipur",        rm:"Harindra Singh",     ms_t:110,  ms_a:39,  tp_t:464,   tp_a:77  },
+  { ro:"RO Puducherry",    rm:"G Sridharan",        ms_t:106,  ms_a:39,  tp_t:345,   tp_a:71  },
+  { ro:"RO Jodhpur",       rm:"Ved Sagar",          ms_t:263,  ms_a:54,  tp_t:714,   tp_a:132 },
+  { ro:"RO Kozhikode",     rm:"Y A N Rasaikar",     ms_t:362,  ms_a:150, tp_t:1543,  tp_a:269 },
+];
+rmData.forEach(d => { d.ms_rate = d.ms_a / d.ms_t; d.tp_rate = d.tp_a / d.tp_t; });
+function rankBadge(i) {
+  if (i === 0) return '<span class="rank gold">🥇</span>';
+  if (i === 1) return '<span class="rank silver">🥈</span>';
+  if (i === 2) return '<span class="rank bronze">🥉</span>';
+  return `<span class="rank plain">${i+1}</span>`;
+}
+function bar(pct, cls='') {
+  return `<div class="bar-wrap"><div class="bar-track"><div class="bar-fill ${cls}" style="width:${(pct*100).toFixed(1)}%"></div></div><span class="bar-pct">${(pct*100).toFixed(0)}%</span></div>`;
+}
+function sortTable(key, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const map = { ms_active:'ms_a', tp_active:'tp_a', ms_rate:'ms_rate', tp_rate:'tp_rate' };
+  const sorted = [...rmData].sort((a,b) => b[map[key]] - a[map[key]]);
+  document.getElementById('rm-body').innerHTML = sorted.map((d,i) => `
+    <tr>
+      <td>${rankBadge(i)}</td>
+      <td><div class="ro-name">${d.ro}</div><div class="rm-name">${d.rm}</div></td>
+      <td class="right">${d.ms_t.toLocaleString()}</td>
+      <td class="right"><strong>${d.ms_a}</strong></td>
+      <td class="bar-cell">${bar(d.ms_rate)}</td>
+      <td class="right">${d.tp_t.toLocaleString()}</td>
+      <td class="right"><strong>${d.tp_a}</strong></td>
+      <td class="bar-cell">${bar(d.tp_rate,'green')}</td>
+    </tr>`).join('');
+}
+sortTable('ms_active', document.querySelector('.tab'));
+</script>
+</body>
+</html>
