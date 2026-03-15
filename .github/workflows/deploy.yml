@@ -16,7 +16,15 @@ jobs:
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
         run: |
-          sed -i "s|SHEET_URL_PLACEHOLDER|${SHEET_URL}|g" index.html
+          python3 -c "
+          import os
+          url = os.environ['SHEET_URL']
+          with open('index.html', 'r') as f:
+              content = f.read()
+          content = content.replace('SHEET_URL_PLACEHOLDER', url)
+          with open('index.html', 'w') as f:
+              f.write(content)
+          "
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
