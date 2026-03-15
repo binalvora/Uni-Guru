@@ -273,7 +273,7 @@ function parseCSV(text) {
     }
     cols.push(cur.trim());
     const num = v => parseInt((v || "0").replace(/[^0-9]/g, "")) || 0;
-    return { ro: cols[1] || "", rm: cols[2] || "", ms_t: num(cols[5]), ms_a: num(cols[6]), tp_t: num(cols[8]), tp_a: num(cols[9]) };
+    return { ro: cols[0] || "", rm: cols[1] || "", ms_t: num(cols[2]), ms_a: num(cols[3]), tp_t: num(cols[5]), tp_a: num(cols[6]) };
   }).filter(d => d.ro && d.ms_t > 0);
 }
 
