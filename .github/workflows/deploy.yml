@@ -12,12 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-     - name: Inject Sheet URL
+      - name: Inject Sheet URL
         env:
           SHEET_URL: ${{ secrets.SHEET_URL }}
         run: |
           sed -i "s|SHEET_URL_PLACEHOLDER|${SHEET_URL}|g" index.html
-          
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
