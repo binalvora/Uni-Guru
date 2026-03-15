@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Uni-Guru · RM Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4f9;
+      color: #1e1e2e;
+      padding: 32px 16px 52px;
+    }
+
+    .wrap { max-width: 1020px; margin: 0 auto; }
+
+    /* ── Header ── */
+    .header {
+      margin-bottom: 28px;
+    }
+    .project-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #003399;
+      letter-spacing: -0.3px;
+    }
+    .project-sub {
+      font-size: 12px;
+      font-weight: 500;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* ── Table card ── */
+    .table-wrap {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid #f3f4f6;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .table-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e1e2e;
+    }
+
+    /* ── Sort dropdown ── */
+    .sort-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sort-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+    }
+    .sort-select {
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e1e2e;
+      background: #f8faff;
+      border: 1.5px solid #e0e7ff;
+      border-radius: 8px;
+      padding: 6px 28px 6px 10px;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .sort-select:focus { border-color: #003399; }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: #f9fafb;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      line-height: 1.5;
+      white-space: nowrap;
+    }
+    thead th.right  { text-align: right; }
+    thead th.center { text-align: center; }
+
+    /* Group header row */
+    thead tr.group-row th {
+      padding: 11px 14px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    thead tr.group-row th.blank    { background: #f9fafb; color: transparent; }
+    thead tr.group-row th.ms-group { background: #1d4ed8; text-align: center; }
+    thead tr.group-row th.tp-group { background: #92700a; text-align: center; }
+
+    /* Sub-header row */
+    thead tr.sub-row th {
+      padding: 6px 14px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    thead tr.sub-row th.blank   { background: #f9fafb; border-top: 1px solid #f3f4f6; color: #6b7280; font-size: 11px; }
+    thead tr.sub-row th.blank-rank { text-align: center; }
+    thead tr.sub-row th.blank-name { text-align: left; }
+    thead tr.sub-row th.ms-sub  { background: #dbeafe; color: #1e40af; }
+    thead tr.sub-row th.tp-sub  { background: #fef9c3; color: #78350f; }
+
+    tbody tr { transition: background 0.1s; }
+    tbody td {
+      padding: 12px 14px;
+      border-top: 1px solid #f3f4f6;
+      color: #1e1e2e;
+      font-weight: 600;
+      font-size: 14px;
+      text-align: center;
+    }
+    tbody td.left { text-align: left; }
+
+    /* MS cells — light blue tint */
+    tbody td.ms-cell { background: rgba(219,234,254,0.35); }
+    tbody tr.top    tbody td.ms-cell,
+    tbody tr.bottom tbody td.ms-cell { background: transparent; }
+
+    /* TP cells — light yellow tint */
+    tbody td.tp-cell { background: rgba(254,249,195,0.45); }
+
+    /* override tints on highlighted rows so gradient shows cleanly */
+    tbody tr.top    td.ms-cell { background: rgba(219,234,254,0.2); }
+    tbody tr.top    td.tp-cell { background: rgba(254,249,195,0.2); }
+    tbody tr.bottom td.ms-cell { background: rgba(219,234,254,0.2); }
+    tbody tr.bottom td.tp-cell { background: rgba(254,249,195,0.2); }
+
+    /* ── Row highlights ── */
+    tbody tr.top    { background: linear-gradient(90deg, rgba(16,185,129,0.18), rgba(16,185,129,0.06)); }
+    tbody tr.top:hover { background: linear-gradient(90deg, rgba(16,185,129,0.26), rgba(16,185,129,0.10)); }
+    tbody tr.bottom { background: linear-gradient(90deg, rgba(239,68,68,0.14), rgba(239,68,68,0.04)); }
+    tbody tr.bottom:hover { background: linear-gradient(90deg, rgba(239,68,68,0.22), rgba(239,68,68,0.08)); }
+    tbody tr.mid:hover  { background: #f8faff; }
+
+    /* ── Rank badge ── */
+    .rank-wrap { display: flex; align-items: center; gap: 6px; }
+    .rank-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .rank-num.gold   { background: #fef3c7; color: #92400e; }
+    .rank-num.silver { background: #e5e7eb; color: #374151; }
+    .rank-num.bronze { background: #fde8c8; color: #92400e; }
+    .rank-num.plain  { background: #f3f4f6; color: #6b7280; }
+    .rank-num.red    { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+    /* ── RO / RM names ── */
+    .ro-name { font-weight: 700; color: #1e1e2e; font-size: 14px; }
+    .rm-name { font-size: 12px; font-weight: 500; color: #374151; margin-top: 2px; }
+
+    /* ── Progress bar ── */
+    .bar-cell { width: 130px; }
+    .bar-wrap { display: flex; align-items: center; gap: 6px; }
+    .bar-track { flex: 1; height: 5px; background: rgba(0,0,0,0.08); border-radius: 999px; overflow: hidden; }
+    .bar-fill   { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #10b981, #34d399); }
+    .bar-pct { font-size: 11px; font-weight: 700; color: #6b7280; min-width: 28px; text-align: right; }
+
+    /* ── Footer ── */
+    .footer { text-align: center; font-size: 10px; font-weight: 400; color: #d1d5db; margin-top: 8px; }
+
+    @media (max-width: 700px) {
+      .bar-cell { display: none; }
+      thead th.hide-m { display: none; }
+      tbody td.hide-m { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="project-title">Uni-Guru Project Status Update</div>
+    <div class="project-sub">RM-wise Leaderboard &nbsp;·&nbsp; Data as of 10 March 2025</div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-header">
+      <h3>RM-wise Performance — All 30 Regions</h3>
+      <div class="sort-wrap">
+        <span class="sort-label">Sort by</span>
+        <select class="sort-select" id="sort-select" onchange="sortTable(this.value)">
+          <option value="ms_active">Microsite · Active Users</option>
+          <option value="ms_total">Microsite · Total Users</option>
+          <option value="ms_rate">Microsite · Adoption %</option>
+          <option value="tp_active">Training Platform · Active Users</option>
+          <option value="tp_total">Training Platform · Total Users</option>
+          <option value="tp_rate">Training Platform · Adoption %</option>
+        </select>
+      </div>
+    </div>
+
+    <table id="rm-table" style="display:none">
+      <thead>
+        <tr class="group-row">
+          <th class="blank" colspan="2"></th>
+          <th class="ms-group" colspan="3">Microsite</th>
+          <th class="tp-group" colspan="3">Training Platform</th>
+        </tr>
+        <tr class="sub-row">
+          <th class="blank blank-rank">Rank</th>
+          <th class="blank blank-name">Region / RM</th>
+          <th class="ms-sub">Total Users</th>
+          <th class="ms-sub">Active Users</th>
+          <th class="ms-sub bar-cell hide-m">Adoption %</th>
+          <th class="tp-sub">Total Users</th>
+          <th class="tp-sub">Active Users</th>
+          <th class="tp-sub bar-cell hide-m">Adoption %</th>
+        </tr>
+      </thead>
+      <tbody id="rm-body"></tbody>
+    </table>
+    <div id="loading" style="padding:32px; text-align:center; font-size:13px; font-weight:500; color:#9ca3af;">Loading data...</div>
+  </div>
+
+  <p class="footer">Uni-Guru &nbsp;&middot;&nbsp; For internal circulation only</p>
+
+</div>
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vR4b2l4Tt-y126YPY37dl2iIHbLvL4yLZaaKVz7qh3wGiPB70dW9FnWaEVVU5JJkEjvOe6GqyhDmQm8/pub?gid=0SHEET_URL_PLACEHOLDERsingle=trueSHEET_URL_PLACEHOLDERoutput=csv";
+
+function parseCSV(text) {
+  const rows = text.trim().split("\n").slice(1);
+  return rows.map(row => {
+    const cols = [];
+    let cur = "", inQuote = false;
+    for (let c of row) {
+      if (c === '"') { inQuote = !inQuote; }
+      else if (c === ',' && !inQuote) { cols.push(cur.trim()); cur = ""; }
+      else { cur += c; }
+    }
+    cols.push(cur.trim());
+    const num = v => parseInt((v || "0").replace(/[^0-9]/g, "")) || 0;
+    return { ro: cols[1] || "", rm: cols[2] || "", ms_t: num(cols[5]), ms_a: num(cols[6]), tp_t: num(cols[8]), tp_a: num(cols[9]) };
+  }).filter(d => d.ro && d.ms_t > 0);
+}
+
+const keyMap = { ms_active:'ms_a', ms_total:'ms_t', ms_rate:'ms_rate', tp_active:'tp_a', tp_total:'tp_t', tp_rate:'tp_rate' };
+
+function rowClass(i, key, total) {
+  if (key !== 'ms_rate' && key !== 'tp_rate') return 'mid';
+  if (i < 3)             return 'top';
+  if (i >= total - 10)   return 'bottom';
+  return 'mid';
+}
+
+function rankColour(i, key, total) {
+  const adopt = key === 'ms_rate' || key === 'tp_rate';
+  if (i === 0) return 'gold';
+  if (i === 1) return 'silver';
+  if (i === 2) return 'bronze';
+  if (adopt && i >= total - 10) return 'red';
+  return 'plain';
+}
+
+function bar(pct) {
+  return `<div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${(pct*100).toFixed(1)}%"></div></div><span class="bar-pct">${(pct*100).toFixed(0)}%</span></div>`;
+}
+
+let rmData = [];
+
+function sortTable(key) {
+  if (!rmData.length) return;
+  const sorted = [...rmData].sort((a, b) => b[keyMap[key]] - a[keyMap[key]]);
+  const total  = sorted.length;
+  document.getElementById('rm-body').innerHTML = sorted.map((d, i) => `
+    <tr class="${rowClass(i, key, total)}">
+      <td><div class="rank-wrap" style="justify-content:center"><span class="rank-num ${rankColour(i, key, total)}">${i+1}</span></div></td>
+      <td class="left"><div class="ro-name">${d.ro}</div><div class="rm-name">${d.rm}</div></td>
+      <td class="ms-cell">${d.ms_t.toLocaleString()}</td>
+      <td class="ms-cell">${d.ms_a.toLocaleString()}</td>
+      <td class="ms-cell bar-cell hide-m">${bar(d.ms_rate)}</td>
+      <td class="tp-cell">${d.tp_t.toLocaleString()}</td>
+      <td class="tp-cell">${d.tp_a.toLocaleString()}</td>
+      <td class="tp-cell bar-cell hide-m">${bar(d.tp_rate)}</td>
+    </tr>`).join('');
+}
+
+async function loadAndRender() {
+  try {
+    const res  = await fetch(CSV_URL);
+    const text = await res.text();
+    rmData = parseCSV(text);
+    rmData.forEach(d => {
+      d.ms_rate = d.ms_t > 0 ? d.ms_a / d.ms_t : 0;
+      d.tp_rate = d.tp_t > 0 ? d.tp_a / d.tp_t : 0;
+    });
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('rm-table').style.display  = '';
+    sortTable('ms_active');
+  } catch (e) {
+    document.getElementById('loading').textContent = 'Failed to load data. Please try refreshing.';
+  }
+}
+
+loadAndRender();
+</script>
+</body>
+</html>
